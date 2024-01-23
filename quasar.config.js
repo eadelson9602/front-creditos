@@ -62,7 +62,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        _URL_API: 'http://54.175.162.92:9090',
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
@@ -102,7 +104,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ['LocalStorage', 'Loading', 'Dialog', 'Notify'],
     },
 
     // animations: 'all', // --- includes all animations

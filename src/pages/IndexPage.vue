@@ -65,14 +65,14 @@
               <q-item class="text-secondary text-bold">
                 <q-item-section> Cuanto dinero necesitas? </q-item-section>
                 <q-item-section avatar class="text-h6">
-                  $ {{ new Intl.NumberFormat().format(amount) }}
+                  $ {{ new Intl.NumberFormat().format(request.monto) }}
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
                   <q-item-label>
                     <q-slider
-                      v-model="amount"
+                      v-model="request.monto"
                       :min="min"
                       :max="max"
                       :step="2"
@@ -97,7 +97,7 @@
                     <div v-for="(option, index) in options" :key="index">
                       <q-radio
                         :val="option.value"
-                        v-model="monthlyFees"
+                        v-model="request.plazo"
                         size="70px"
                         :label="option.label"
                       />
@@ -108,13 +108,13 @@
               <q-item class="text-secondary text-bold">
                 <q-item-section> Cantidad a solicitar </q-item-section>
                 <q-item-section avatar>
-                  $ {{ new Intl.NumberFormat().format(amount) }}
+                  $ {{ new Intl.NumberFormat().format(request.monto) }}
                 </q-item-section>
               </q-item>
               <q-item class="text-secondary text-bold">
                 <q-item-section> Interés corriente </q-item-section>
                 <q-item-section avatar>
-                  $ {{ new Intl.NumberFormat().format(amount) }}
+                  $ {{ new Intl.NumberFormat().format(request.monto) }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -126,7 +126,7 @@
                 <q-item-section> Fecha </q-item-section>
                 <q-item-section avatar> Cuota </q-item-section>
               </q-item>
-              <q-item v-for="(k, i) in monthlyFees" :key="i">
+              <q-item v-for="(k, i) in request.plazo" :key="i">
                 <q-item-section>{{ formatMonth(k) }}</q-item-section>
                 <q-item-section avatar> $ 12000 </q-item-section>
               </q-item>
@@ -146,12 +146,117 @@
               no-caps
               rounded
               unelevated
+              @click="dialogForm = true"
               label="Solicitar cupo de crédito"
             />
           </q-card-actions>
         </q-card>
       </div>
     </section>
+
+    <!-- Dialog para el formulario -->
+    <q-dialog v-model="dialogForm" persistent>
+      <q-card style="width: 450px; max-width: 90vw">
+        <q-bar class="bg-white justify-between">
+          <q-btn dense round icon="close" outline color="white" disabled />
+          <div class="text-center text-secondary text-h5 text-bold">
+            Formulario de solicitud
+          </div>
+          <q-btn
+            dense
+            round
+            icon="close"
+            outline
+            color="primary"
+            v-close-popup
+          />
+        </q-bar>
+        <q-card-section>
+          <q-form @submit="onSubmit" class="row">
+            <div class="col-xs-12 col-md-6 q-pa-xs">
+              <q-input
+                v-model="request.nombres"
+                type="text"
+                label="Nombres"
+                outlined
+                :rules="[(val) => !!val || 'Campo requerido']"
+                hide-bottom-space
+              />
+            </div>
+            <div class="col-xs-12 col-md-6 q-pa-xs">
+              <q-input
+                v-model="request.apellidos"
+                type="text"
+                label="Apellidos"
+                outlined
+                :rules="[(val) => !!val || 'Campo requerido']"
+                hide-bottom-space
+              />
+            </div>
+            <div class="col-xs-12 q-pa-xs">
+              <q-input
+                v-model="request.email"
+                type="email"
+                label="Email"
+                outlined
+                :rules="[(val) => !!val || 'Campo requerido']"
+                hide-bottom-space
+              />
+            </div>
+            <div class="col-xs-12 q-pa-xs">
+              <q-select
+                v-model="request.fkIdTipoDocumento"
+                :options="optionsDocuments"
+                label="Tipo documento"
+                map-options
+                emit-value
+                option-value="idTipoDocumento"
+                option-label="nombreTipoDocumento"
+                outlined
+              />
+            </div>
+            <div class="col-xs-12 q-pa-xs">
+              <q-input
+                v-model="request.documentoPersona"
+                label="Número de documento"
+                outlined
+                :rules="[(val) => !!val || 'Campo requerido']"
+                hide-bottom-space
+              />
+            </div>
+            <div class="col-xs-12 col-md-6 q-pa-xs">
+              <q-field outlined label="Monto solicitado" stack-label>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline" tabindex="0">
+                    {{ new Intl.NumberFormat().format(request.monto) }}
+                  </div>
+                </template>
+              </q-field>
+            </div>
+            <div class="col-xs-12 col-md-6 q-pa-xs">
+              <q-field outlined label="Plazo" stack-label>
+                <template v-slot:control>
+                  <div class="self-center full-width no-outline" tabindex="0">
+                    {{ new Intl.NumberFormat().format(request.plazo) }}
+                  </div>
+                </template>
+              </q-field>
+            </div>
+            <div class="col-xs-12 row justify-center q-pa-xs">
+              <q-btn
+                label="Solicitar crédito"
+                rounded
+                unelevated
+                type="submit"
+                color="primary"
+                no-caps
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
     <section class="section_steps row container">
       <div class="col-xs-12 q-my-xl">
         <h4 class="text-h5 text-center text-bold text-white">
@@ -230,18 +335,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { date } from 'quasar';
+import { onMounted, ref } from 'vue';
+import { date, LocalStorage, useQuasar } from 'quasar';
+import { api } from '../boot/axios';
+import { ResDocuments, TipoDocumento } from 'src/components/models';
+
+const $q = useQuasar();
 
 const min = ref(100000);
 const max = ref(10000000);
-const amount = ref(100000);
-const monthlyFees = ref(2);
 const options = [
   { label: '2 Cuotas', value: 2 },
   { label: '3 Cuotas', value: 3 },
   { label: '4 Cuotas', value: 4 },
 ];
+const dialogForm = ref(false);
+const request = ref({
+  monto: 100000,
+  plazo: 2,
+  idProducto: 1,
+  documentoPersona: '',
+  nombres: '',
+  apellidos: '',
+  email: '',
+  fkIdTipoDocumento: 1,
+});
+const optionsDocuments = ref<TipoDocumento[]>([]);
 
 const formatMonth = (months: number) => {
   const timeStamp = Date.now();
@@ -250,6 +369,67 @@ const formatMonth = (months: number) => {
 
   return formattedString;
 };
+
+const onSubmit = async () => {
+  $q.loading.show({
+    message: 'Enviado solicitud, por favor espere...',
+  });
+  try {
+    await api.post('/solicitude', request.value);
+
+    request.value = {
+      monto: 100000,
+      plazo: 2,
+      idProducto: 86,
+      documentoPersona: '',
+      nombres: '',
+      apellidos: '',
+      email: '',
+      fkIdTipoDocumento: 1,
+    };
+
+    $q.notify({
+      type: 'positive',
+      message: 'Solicitud enviada con éxito',
+      position: 'bottom-right',
+    });
+    dialogForm.value = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    $q.notify({
+      type: 'negative',
+      message: error.message,
+      position: 'bottom-right',
+    });
+  } finally {
+    $q.loading.hide();
+  }
+};
+
+const getData = async () => {
+  try {
+    const { headers } = await api.post('login', {
+      usuario: '1006721563',
+      password: '1006721563',
+    });
+
+    api.defaults.headers.common['x-access-token'] = headers['auth-token'];
+
+    LocalStorage.set('token', headers['auth-token']);
+
+    const {
+      data: { types },
+    } = await api.get<ResDocuments>('/document_types');
+
+    optionsDocuments.value = [...types];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+onMounted(async () => {
+  await getData();
+});
 </script>
 <style lang="scss" scoped>
 .subtitle {

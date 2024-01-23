@@ -1,8 +1,9 @@
-export interface Todo {
-  id: number;
-  content: string;
+export interface ResDocuments {
+  message: string;
+  types: TipoDocumento[];
 }
 
-export interface Meta {
-  totalCount: number;
+export interface TipoDocumento {
+  idTipoDocumento: number;
+  nombreTipoDocumento: string;
 }
