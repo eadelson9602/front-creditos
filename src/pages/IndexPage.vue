@@ -466,7 +466,7 @@ const getData = async () => {
     interestRate.value = {
       fechaRegistro: '',
       idTasaInteres: 1,
-      tasa: '3.00',
+      tasa: '0.3',
     };
   } catch (error) {
     console.log(error);
