@@ -16,6 +16,7 @@
             no-caps
             rounded
             unelevated
+            class="paddig_button"
           />
         </div>
       </div>
@@ -29,7 +30,7 @@
       </div>
     </section>
 
-    <section class="section_simulator row container">
+    <section class="section_simulator row container" id="simulator">
       <div class="col-xs-12 col-md-6 q-px-md">
         <h3 class="text-h6">
           Tenemos la mejor herramienta perfecta para planificar tu futuro
@@ -55,7 +56,10 @@
         </div>
       </div>
       <div class="col-xs-12 col-md-6 q-px-md row justify-end">
-        <q-card class="card_simulator" style="max-width: 90vw; width: 450px">
+        <q-card
+          class="card_simulator q-pb-md"
+          style="max-width: 90vw; width: 450px"
+        >
           <q-card-section>
             <div class="text-h6 text-center text-secondary q-my-md">
               Calculadora de crédito
@@ -105,6 +109,27 @@
                   </div>
                 </q-item-section>
               </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-item-label class="text-secondary text-bold">
+                    Cada cuanto quieres pagarlo?
+                  </q-item-label>
+                  <div class="row justify-center">
+                    <q-radio
+                      :val="15"
+                      v-model="periodo"
+                      size="40px"
+                      label="Quincenal"
+                    />
+                    <q-radio
+                      :val="30"
+                      v-model="periodo"
+                      size="40px"
+                      label="Mensual"
+                    />
+                  </div>
+                </q-item-section>
+              </q-item>
               <q-item class="text-secondary text-bold">
                 <q-item-section> Cantidad a solicitar </q-item-section>
                 <q-item-section avatar>
@@ -112,9 +137,12 @@
                 </q-item-section>
               </q-item>
               <q-item class="text-secondary text-bold">
-                <q-item-section> Interés corriente </q-item-section>
+                <q-item-section> Interés </q-item-section>
                 <q-item-section avatar>
-                  $ {{ new Intl.NumberFormat().format(request.monto) }}
+                  %
+                  {{
+                    periodo == 15 ? +interestRate.tasa / 2 : interestRate.tasa
+                  }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -126,9 +154,11 @@
                 <q-item-section> Fecha </q-item-section>
                 <q-item-section avatar> Cuota </q-item-section>
               </q-item>
-              <q-item v-for="(k, i) in request.plazo" :key="i">
-                <q-item-section>{{ formatMonth(k) }}</q-item-section>
-                <q-item-section avatar> $ 12000 </q-item-section>
+              <q-item v-for="(k, i) in amortizacion" :key="i">
+                <q-item-section>{{ k.fechaPago }}</q-item-section>
+                <q-item-section avatar>
+                  $ {{ new Intl.NumberFormat().format(k.cuota) }}
+                </q-item-section>
               </q-item>
             </q-list>
 
@@ -136,7 +166,9 @@
             <q-list dense>
               <q-item class="text-secondary text-bold">
                 <q-item-section> Total a pagar </q-item-section>
-                <q-item-section avatar> Cuota </q-item-section>
+                <q-item-section avatar>
+                  $ {{ new Intl.NumberFormat().format(totalPagar) }}
+                </q-item-section>
               </q-item>
             </q-list>
           </q-card-section>
@@ -148,6 +180,7 @@
               unelevated
               @click="dialogForm = true"
               label="Solicitar cupo de crédito"
+              class="paddig_button"
             />
           </q-card-actions>
         </q-card>
@@ -155,21 +188,14 @@
     </section>
 
     <!-- Dialog para el formulario -->
-    <q-dialog v-model="dialogForm" persistent>
-      <q-card style="width: 450px; max-width: 90vw">
-        <q-bar class="bg-white justify-between">
-          <q-btn dense round icon="close" outline color="white" disabled />
+    <q-dialog v-model="dialogForm">
+      <q-card style="width: 450px; max-width: 90vw" class="q-pa-md">
+        <q-bar class="bg-white">
+          <q-space />
           <div class="text-center text-secondary text-h5 text-bold">
             Formulario de solicitud
           </div>
-          <q-btn
-            dense
-            round
-            icon="close"
-            outline
-            color="primary"
-            v-close-popup
-          />
+          <q-space />
         </q-bar>
         <q-card-section>
           <q-form @submit="onSubmit" class="row">
@@ -242,14 +268,15 @@
                 </template>
               </q-field>
             </div>
-            <div class="col-xs-12 row justify-center q-pa-xs">
+            <div class="col-xs-12 row justify-center q-pa-xs q-mt-md">
               <q-btn
-                label="Solicitar crédito"
+                label="Solicitar cupo de crédito"
                 rounded
                 unelevated
                 type="submit"
                 color="primary"
                 no-caps
+                class="paddig_button"
               />
             </div>
           </q-form>
@@ -335,10 +362,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { date, LocalStorage, useQuasar } from 'quasar';
 import { api } from '../boot/axios';
-import { ResDocuments, TipoDocumento } from 'src/components/models';
+import {
+  Cuota,
+  InterestRate,
+  ResDocuments,
+  ResInterestRate,
+  TipoDocumento,
+} from 'src/components/models';
 
 const $q = useQuasar();
 
@@ -350,9 +383,10 @@ const options = [
   { label: '4 Cuotas', value: 4 },
 ];
 const dialogForm = ref(false);
+const periodo = ref(15);
 const request = ref({
-  monto: 100000,
-  plazo: 2,
+  monto: 1000000,
+  plazo: 4,
   idProducto: 1,
   documentoPersona: '',
   nombres: '',
@@ -360,15 +394,14 @@ const request = ref({
   email: '',
   fkIdTipoDocumento: 1,
 });
+const interestRate = ref<InterestRate>({
+  fechaRegistro: '',
+  idTasaInteres: 0,
+  tasa: '',
+});
 const optionsDocuments = ref<TipoDocumento[]>([]);
-
-const formatMonth = (months: number) => {
-  const timeStamp = Date.now();
-  const newDate = date.addToDate(timeStamp, { months });
-  const formattedString = date.formatDate(newDate, 'YYYY-MM-DD');
-
-  return formattedString;
-};
+const amortizacion = ref<Cuota[]>([]);
+const totalPagar = ref(0);
 
 const onSubmit = async () => {
   $q.loading.show({
@@ -408,6 +441,7 @@ const onSubmit = async () => {
 
 const getData = async () => {
   try {
+    // Login en la api
     const { headers } = await api.post('login', {
       usuario: '1006721563',
       password: '1006721563',
@@ -417,18 +451,91 @@ const getData = async () => {
 
     LocalStorage.set('token', headers['auth-token']);
 
+    // Tipos de documentos
     const {
       data: { types },
     } = await api.get<ResDocuments>('/document_types');
 
     optionsDocuments.value = [...types];
+
+    // Interes
+    const {
+      data: { interestRate: rate },
+    } = await api.get<ResInterestRate>('/interest_rate/8');
+
+    interestRate.value = { ...rate };
   } catch (error) {
     console.log(error);
   }
 };
 
+const calculateAmortizacion = () => {
+  amortizacion.value.length = 0;
+
+  const timeStamp = Date.now();
+
+  const firtsCuot = date.addToDate(
+    timeStamp,
+    periodo.value == 30 ? { months: 1 } : { days: periodo.value }
+  );
+  const formattedString = date.formatDate(firtsCuot, 'YYYY-MM-DD');
+
+  // calculamos la cuota
+  const cuota = Math.round(calculateCuota());
+
+  // Calcula la primera fecha de pago
+  amortizacion.value.push({ fechaPago: formattedString, cuota: cuota + 10000 });
+  totalPagar.value = cuota + 10000;
+
+  // Calcula el resto de fechas de pago
+  for (let index = 1; index < request.value.plazo; index++) {
+    const otherTimeStap = new Date(
+      amortizacion.value[amortizacion.value.length - 1].fechaPago
+    );
+    const newDate = date.addToDate(
+      otherTimeStap,
+      periodo.value == 30 ? { months: 1 } : { days: periodo.value }
+    );
+    amortizacion.value.push({
+      fechaPago: date.formatDate(newDate, 'YYYY-MM-DD'),
+      cuota,
+    });
+
+    totalPagar.value = totalPagar.value + cuota;
+  }
+};
+
+const calculateCuota = () => {
+  const interes =
+    periodo.value == 15
+      ? Number(interestRate.value.tasa) / 2
+      : Number(interestRate.value.tasa);
+
+  const cuotas = request.value.plazo;
+
+  const monto = Number(request.value.monto);
+  // ((monto * interes * ((1 + interes) ** cuotas))) / (((1 + interes) ** cuotas )- 1)
+  const cuota =
+    (monto * interes * (1 + interes) ** cuotas) / ((1 + interes) ** cuotas - 1);
+
+  return cuota;
+};
+
+watch(
+  () => request.value.plazo,
+  () => {
+    calculateAmortizacion();
+  }
+);
+
+watch(periodo, () => {
+  calculateAmortizacion();
+});
+
 onMounted(async () => {
   await getData();
+  calculateAmortizacion();
+  calculateCuota();
 });
 </script>
 <style lang="scss" scoped>
