@@ -140,9 +140,7 @@
                 <q-item-section> Interés </q-item-section>
                 <q-item-section avatar>
                   %
-                  {{
-                    periodo == 15 ? +interestRate.tasa / 2 : interestRate.tasa
-                  }}
+                  {{ periodo == 15 ? +interestRate / 2 : interestRate }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -365,13 +363,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { date, LocalStorage, useQuasar } from 'quasar';
 import { api } from '../boot/axios';
-import {
-  Cuota,
-  InterestRate,
-  ResDocuments,
-  ResInterestRate,
-  TipoDocumento,
-} from 'src/components/models';
+import { Cuota, ResDocuments, TipoDocumento } from 'src/components/models';
 
 const $q = useQuasar();
 
@@ -394,11 +386,7 @@ const request = ref({
   email: '',
   fkIdTipoDocumento: 1,
 });
-const interestRate = ref<InterestRate>({
-  fechaRegistro: '',
-  idTasaInteres: 0,
-  tasa: '',
-});
+const interestRate = ref<number>(0.03);
 const optionsDocuments = ref<TipoDocumento[]>([]);
 const amortizacion = ref<Cuota[]>([]);
 const totalPagar = ref(0);
@@ -457,17 +445,6 @@ const getData = async () => {
     } = await api.get<ResDocuments>('/document_types');
 
     optionsDocuments.value = [...types];
-
-    // Interes
-    // const {
-    //   data: { interestRate: rate },
-    // } = await api.get<ResInterestRate>('/interest_rate/8');
-
-    interestRate.value = {
-      fechaRegistro: '',
-      idTasaInteres: 1,
-      tasa: '0.3',
-    };
   } catch (error) {
     console.log(error);
   }
@@ -511,16 +488,15 @@ const calculateAmortizacion = () => {
 
 const calculateCuota = () => {
   const interes =
-    periodo.value == 15
-      ? Number(interestRate.value.tasa) / 2
-      : Number(interestRate.value.tasa);
+    periodo.value == 15 ? interestRate.value / 2 : interestRate.value;
 
-  const cuotas = request.value.plazo;
+  const numeroCuotas = request.value.plazo;
 
   const monto = Number(request.value.monto);
-  // ((monto * interes * ((1 + interes) ** cuotas))) / (((1 + interes) ** cuotas )- 1)
+
   const cuota =
-    (monto * interes * (1 + interes) ** cuotas) / ((1 + interes) ** cuotas - 1);
+    (monto * interes * Math.pow(1 + interes, numeroCuotas)) /
+    (Math.pow(1 + interes, numeroCuotas) - 1);
 
   return cuota;
 };

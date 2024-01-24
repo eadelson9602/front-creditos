@@ -15,7 +15,7 @@ export interface ResInterestRate {
 
 export interface InterestRate {
   idTasaInteres: number;
-  tasa: string;
+  tasa: number;
   fechaRegistro: string;
 }
 
