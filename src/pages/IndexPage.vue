@@ -459,11 +459,15 @@ const getData = async () => {
     optionsDocuments.value = [...types];
 
     // Interes
-    const {
-      data: { interestRate: rate },
-    } = await api.get<ResInterestRate>('/interest_rate/8');
+    // const {
+    //   data: { interestRate: rate },
+    // } = await api.get<ResInterestRate>('/interest_rate/8');
 
-    interestRate.value = { ...rate };
+    interestRate.value = {
+      fechaRegistro: '',
+      idTasaInteres: 1,
+      tasa: '3.00',
+    };
   } catch (error) {
     console.log(error);
   }

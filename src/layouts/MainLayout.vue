@@ -4,7 +4,10 @@
       <q-toolbar class="text-primary toolbar">
         <img src="/img/logo.png" alt="logo RapiPlata" class="logo" />
         <q-space />
-        <div class="row q-gutter-x-lg">
+        <!-- Menu mobil -->
+
+        <!-- Menu escritorio -->
+        <div class="row q-gutter-x-lg" v-if="$q.screen.gt.sm">
           <q-btn flat no-caps color="black" rounded label="Inicio" />
           <q-btn
             flat
