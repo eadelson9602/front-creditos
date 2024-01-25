@@ -1,11 +1,17 @@
 <template>
   <q-page>
     <section class="row justify-evenly container">
-      <div class="col-xs-12 col-md-6">
-        <h1 class="text-primary text-h2 text-bold">
+      <div class="col-xs-12 col-sm-6 col-md-6">
+        <h1
+          class="text-primary text-bold"
+          :class="$q.screen.lt.sm ? 'text-h4' : 'text-h2'"
+        >
           ¡Obtén El Apoyo Financiero Que Necesitas Hoy Mismo!
         </h1>
-        <h2 class="text-secondary text-h5">
+        <h2
+          class="text-secondary"
+          :class="$q.screen.lt.sm ? 'text-h6' : 'text-h5'"
+        >
           Bienvenido a RapiPlata, tu aliado financiero confiable. Estamos aquí
           para ayudarte a alcanzar tus metas financieras.
         </h2>
@@ -20,7 +26,7 @@
           />
         </div>
       </div>
-      <div class="col-xs-12 col-md-6">
+      <div class="col-xs-12 col-sm-6 col-md-6" v-if="$q.screen.gt.xs">
         <q-img
           src="/img/ahorro.png"
           alt="Alcancia"
@@ -31,8 +37,8 @@
     </section>
 
     <section class="section_simulator row container" id="simulator">
-      <div class="col-xs-12 col-md-6 q-px-md">
-        <h3 class="text-h6">
+      <div class="col-xs-12 col-sm-12 col-md-6 q-px-md">
+        <h3 class="text-h6" v-if="$q.screen.gt.xs">
           Tenemos la mejor herramienta perfecta para planificar tu futuro
           financiero con confianza. ¿Te preguntas cuánto podrías solicitar o
           cuál sería la mejor opción de crédito para tus necesidades? Con
@@ -55,7 +61,12 @@
           </ol>
         </div>
       </div>
-      <div class="col-xs-12 col-md-6 q-px-md row justify-end">
+      <div
+        class="col-xs-12 col-sm-12 col-md-6 row"
+        :class="
+          $q.screen.gt.xs ? 'q-px-md justify-center' : 'q-mt-xl justify-end'
+        "
+      >
         <q-card
           class="card_simulator q-pb-md"
           style="max-width: 90vw; width: 450px"
@@ -102,7 +113,7 @@
                       <q-radio
                         :val="option.value"
                         v-model="request.plazo"
-                        size="70px"
+                        :size="$q.screen.gt.xs ? '70px' : '50px'"
                         :label="option.label"
                       />
                     </div>
@@ -179,6 +190,7 @@
               @click="dialogForm = true"
               label="Solicitar cupo de crédito"
               class="paddig_button"
+              :style="$q.screen.lt.sm ? 'padding: 10px 52px !important' : ''"
             />
           </q-card-actions>
         </q-card>
@@ -228,6 +240,16 @@
               />
             </div>
             <div class="col-xs-12 q-pa-xs">
+              <q-input
+                v-model="request.celular"
+                label="Celular"
+                outlined
+                :rules="[(val) => !!val || 'Campo requerido']"
+                mask="##########"
+                hide-bottom-space
+              />
+            </div>
+            <div class="col-xs-12 q-pa-xs">
               <q-select
                 v-model="request.fkIdTipoDocumento"
                 :options="optionsDocuments"
@@ -246,6 +268,7 @@
                 outlined
                 :rules="[(val) => !!val || 'Campo requerido']"
                 hide-bottom-space
+                mask="###############"
               />
             </div>
             <div class="col-xs-12 col-md-6 q-pa-xs">
@@ -266,6 +289,20 @@
                 </template>
               </q-field>
             </div>
+            <div class="col-xs-12 q-pa-xs" v-if="errorMatchData">
+              <q-banner inline-actions rounded class="bg-orange text-white">
+                {{ errorMatchData }}
+
+                <template v-slot:action>
+                  <q-btn
+                    flat
+                    label="Cerrar"
+                    no-caps
+                    @click="errorMatchData = ''"
+                  />
+                </template>
+              </q-banner>
+            </div>
             <div class="col-xs-12 row justify-center q-pa-xs q-mt-md">
               <q-btn
                 label="Solicitar cupo de crédito"
@@ -282,19 +319,23 @@
       </q-card>
     </q-dialog>
 
+    <!-- Pasos para obtener el creido -->
     <section class="section_steps row container">
-      <div class="col-xs-12 q-my-xl">
+      <div
+        class="col-xs-12 q-my-xl"
+        :style="$q.screen.lt.md ? 'margin-top: 170px; margin-bottom: 0px;' : ''"
+      >
         <h4 class="text-h5 text-center text-bold text-white">
           Pide tu crédito 100% en línea en cinco pasos.
         </h4>
       </div>
       <div class="col-xs-12 row text-white">
-        <div class="col q-px-md">
+        <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
           <p class="text-h2 text-bold">01</p>
           <p class="subtitle">Ser empleado</p>
           <p>Verifica que eres colaborador de nuestra compañia</p>
         </div>
-        <div class="col q-px-md">
+        <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
           <p class="text-h2 text-bold">02</p>
           <p class="subtitle">Calcula tu crédito</p>
           <p>
@@ -302,17 +343,17 @@
             tus necesidades
           </p>
         </div>
-        <div class="col q-px-md">
+        <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
           <p class="text-h2 text-bold">03</p>
           <p class="subtitle">Realiza tu solicitud</p>
           <p>Llena el formulario con la información requerida</p>
         </div>
-        <div class="col q-px-md">
+        <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
           <p class="text-h2 text-bold">04</p>
           <p class="subtitle">Espera nuestra aprobación</p>
           <p>Realizaremos el estudio y te notificamos cuando sea aprobado</p>
         </div>
-        <div class="col q-px-md">
+        <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
           <p class="text-h2 text-bold">05</p>
           <p class="subtitle">Recibe tu dinero</p>
           <p>Desembolsamos tu dinero a tu cuenta de nómia</p>
@@ -320,11 +361,17 @@
       </div>
     </section>
 
-    <footer class="footer row container">
-      <div class="col q-px-md">
+    <footer
+      class="footer row"
+      :class="$q.screen.lt.md ? 'q-pt-md' : 'container'"
+    >
+      <div
+        class="q-px-md"
+        :class="$q.screen.lt.md ? 'col-xs-12 q-pb-md' : 'col'"
+      >
         <q-img src="/img/logo.png" fit="contain" style="height: 35px" />
       </div>
-      <div class="col q-px-md">
+      <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
         <p class="subtitle">Contacto</p>
         <ul>
           <li><q-icon name="mail" /> email@gmail.com</li>
@@ -332,7 +379,7 @@
           <li><q-icon name="smartphone" /> 3123213112</li>
         </ul>
       </div>
-      <div class="col q-px-md">
+      <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
         <p class="subtitle">Nosotros</p>
         <ul>
           <li>RapiPlata</li>
@@ -341,14 +388,14 @@
           <li>gerencia@gmail.com</li>
         </ul>
       </div>
-      <div class="col q-px-md">
+      <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
         <p class="subtitle">Legales</p>
         <ul>
           <li>Términos y condiciones</li>
           <li>Política de privacidad</li>
         </ul>
       </div>
-      <div class="col q-px-md">
+      <div class="q-px-md" :class="$q.screen.lt.md ? 'col-xs-6' : 'col'">
         <p class="subtitle">Redes</p>
         <ul>
           <li><q-icon name="fa-brands fa-facebook" /> empleo.com</li>
@@ -356,6 +403,12 @@
         </ul>
       </div>
     </footer>
+    <q-separator />
+    <div class="row">
+      <div class="col-xs-12 text-center q-pt-md">
+        <p>&copy; {{ date.formatDate(Date.now(), 'YYYY') }} RapiPlata.</p>
+      </div>
+    </div>
   </q-page>
 </template>
 
@@ -363,7 +416,12 @@
 import { onMounted, ref, watch } from 'vue';
 import { date, LocalStorage, useQuasar } from 'quasar';
 import { api } from '../boot/axios';
-import { Cuota, ResDocuments, TipoDocumento } from 'src/components/models';
+import {
+  Cuota,
+  ResDocuments,
+  ResPerson,
+  TipoDocumento,
+} from 'src/components/models';
 
 const $q = useQuasar();
 
@@ -385,17 +443,33 @@ const request = ref({
   apellidos: '',
   email: '',
   fkIdTipoDocumento: 1,
+  celular: '',
 });
 const interestRate = ref<number>(0.03);
 const optionsDocuments = ref<TipoDocumento[]>([]);
 const amortizacion = ref<Cuota[]>([]);
 const totalPagar = ref(0);
+const errorMatchData = ref('');
 
 const onSubmit = async () => {
   $q.loading.show({
     message: 'Enviado solicitud, por favor espere...',
   });
   try {
+    errorMatchData.value = '';
+    const {
+      data: { person },
+    } = await api.get<ResPerson>(`/person/${request.value.documentoPersona}`);
+
+    if (
+      person.email !== request.value.email ||
+      person.celular !== Number(request.value.celular)
+    ) {
+      errorMatchData.value =
+        'Los datos de contacto no coinciden, debe actualizar datos, comuniquese con el adminitrador del sistema';
+
+      return;
+    }
     await api.post('/solicitude', request.value);
 
     request.value = {
@@ -407,6 +481,7 @@ const onSubmit = async () => {
       apellidos: '',
       email: '',
       fkIdTipoDocumento: 1,
+      celular: '',
     };
 
     $q.notify({
@@ -417,6 +492,10 @@ const onSubmit = async () => {
     dialogForm.value = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
+    if (error.response.status == 404) {
+      error.message =
+        'Lo sentimos, no hemos encontrado datos asociados a los ingresados';
+    }
     $q.notify({
       type: 'negative',
       message: error.message,

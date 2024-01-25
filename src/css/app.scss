@@ -1,14 +1,4 @@
 // app global css in SCSS form
-@media (min-width: $breakpoint-lg-min) {
-  .main_header {
-    padding: 0 70px !important;
-  }
-
-  .container {
-    padding: 0 120px !important;
-  }
-}
-
 .main_header {
   padding: 0 20px;
 }
@@ -59,4 +49,50 @@
 
 .paddig_button {
   padding: 13px 78px !important;
+}
+
+// Responsive
+@media (max-width: $breakpoint-sm-min) {
+  .section_steps {
+    margin-top: -110px !important;
+    padding-bottom: 40px !important;
+  }
+}
+
+@media (max-width: $breakpoint-sm-max) {
+  .container {
+    padding: 0 20px !important;
+  }
+
+  .section_steps {
+    margin-top: -20px;
+    padding-bottom: 40px !important;
+  }
+
+  .paddig_button {
+    padding: 12px 60px !important;
+  }
+
+  .advantages li {
+    height: auto;
+  }
+
+  .section_simulator {
+    height: auto !important;
+  }
+
+  .footer {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+
+  // .container {
+  //   padding: 0 120px !important;
+  // }
+}
+
+@media (min-width: $breakpoint-lg-min) {
+  .main_header {
+    padding: 0 70px !important;
+  }
 }

@@ -23,3 +23,20 @@ export interface Cuota {
   fechaPago: string;
   cuota: number;
 }
+
+export interface ResPerson {
+  message: string;
+  person: Persona;
+}
+
+export interface Persona {
+  documentoPersona: number;
+  nombres: string;
+  apellidos: string;
+  genero: string;
+  fechaNacimiento: string;
+  email: string;
+  telefono: null;
+  celular: number;
+  fkIdTipoDocumento: number;
+}

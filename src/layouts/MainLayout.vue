@@ -5,7 +5,30 @@
         <img src="/img/logo.png" alt="logo RapiPlata" class="logo" />
         <q-space />
         <!-- Menu mobil -->
-
+        <q-btn color="primary" icon="menu" flat>
+          <q-menu>
+            <q-list style="min-width: 170px">
+              <q-item clickable v-close-popup>
+                <q-item-section>Inicio</q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup>
+                <q-item-section>Pasos para tu credito</q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup>
+                <q-item-section> Ingreso </q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup>
+                <q-item-section avatar style="padding-right: 0; min-width: 3px">
+                  <q-icon name="phone" class="phone" />
+                </q-item-section>
+                <q-item-section> 601125438 </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
         <!-- Menu escritorio -->
         <div class="row q-gutter-x-lg" v-if="$q.screen.gt.sm">
           <q-btn flat no-caps color="black" rounded label="Inicio" />
