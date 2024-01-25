@@ -91,7 +91,7 @@
                       v-model="request.monto"
                       :min="min"
                       :max="max"
-                      :step="2"
+                      :step="100000"
                       color="primary"
                       track-size="10px"
                       thumb-size="35px"
