@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <section class="row justify-evenly container">
+    <section class="row justify-evenly container" id="home">
       <div class="col-xs-12 col-sm-6 col-md-6">
         <h1
           class="text-primary text-bold"
@@ -290,6 +290,20 @@
                 </template>
               </q-field>
             </div>
+            <div class="col-xs-12 q-pa-xs" v-if="errorNotFound">
+              <q-banner inline-actions rounded class="bg-red text-white">
+                {{ errorNotFound }}
+
+                <template v-slot:action>
+                  <q-btn
+                    flat
+                    label="Cerrar"
+                    no-caps
+                    @click="errorNotFound = ''"
+                  />
+                </template>
+              </q-banner>
+            </div>
             <div class="col-xs-12 q-pa-xs" v-if="errorMatchData">
               <q-banner inline-actions rounded class="bg-orange text-white">
                 {{ errorMatchData }}
@@ -436,7 +450,7 @@ const options = [
 const dialogForm = ref(false);
 const periodo = ref(15);
 const request = ref({
-  monto: 1000000,
+  monto: 100000,
   plazo: 4,
   idProducto: 1,
   documentoPersona: '',
@@ -451,6 +465,7 @@ const optionsDocuments = ref<TipoDocumento[]>([]);
 const amortizacion = ref<Cuota[]>([]);
 const totalPagar = ref(0);
 const errorMatchData = ref('');
+const errorNotFound = ref('');
 const { setVerticalScrollPosition } = scroll;
 
 const onSubmit = async () => {
@@ -459,6 +474,7 @@ const onSubmit = async () => {
   });
   try {
     errorMatchData.value = '';
+    errorNotFound.value = '';
     const {
       data: { person },
     } = await api.get<ResPerson>(`/person/${request.value.documentoPersona}`);
@@ -495,8 +511,9 @@ const onSubmit = async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response.status == 404) {
-      error.message =
+      errorNotFound.value =
         'Lo sentimos, no hemos encontrado datos asociados a los ingresados';
+      return;
     }
     $q.notify({
       type: 'negative',
