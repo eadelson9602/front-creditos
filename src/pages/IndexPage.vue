@@ -23,6 +23,7 @@
             rounded
             unelevated
             class="paddig_button"
+            @click="scrollTo('simulador')"
           />
         </div>
       </div>
@@ -36,7 +37,7 @@
       </div>
     </section>
 
-    <section class="section_simulator row container" id="simulator">
+    <section class="section_simulator row container" id="simulador">
       <div class="col-xs-12 col-sm-12 col-md-6 q-px-md">
         <h3 class="text-h6" v-if="$q.screen.gt.xs">
           Tenemos la mejor herramienta perfecta para planificar tu futuro
@@ -320,7 +321,7 @@
     </q-dialog>
 
     <!-- Pasos para obtener el creido -->
-    <section class="section_steps row container">
+    <section class="section_steps row container" id="steps">
       <div
         class="col-xs-12 q-my-xl"
         :style="$q.screen.lt.md ? 'margin-top: 170px; margin-bottom: 0px;' : ''"
@@ -414,7 +415,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { date, LocalStorage, useQuasar } from 'quasar';
+import { date, LocalStorage, useQuasar, scroll } from 'quasar';
 import { api } from '../boot/axios';
 import {
   Cuota,
@@ -450,6 +451,7 @@ const optionsDocuments = ref<TipoDocumento[]>([]);
 const amortizacion = ref<Cuota[]>([]);
 const totalPagar = ref(0);
 const errorMatchData = ref('');
+const { setVerticalScrollPosition } = scroll;
 
 const onSubmit = async () => {
   $q.loading.show({
@@ -579,6 +581,24 @@ const calculateCuota = () => {
 
   return cuota;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function scrollTo(id: any) {
+  const el = document.getElementById(id);
+
+  if (el) {
+    scrollPage(el);
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function scrollPage(el: any) {
+  const rect = el.getBoundingClientRect(),
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop,
+    offset = rect.top + scrollTop - 50; // allow for toolbar height
+
+  setVerticalScrollPosition(window, offset, 500);
+}
 
 watch(
   () => request.value.plazo,
