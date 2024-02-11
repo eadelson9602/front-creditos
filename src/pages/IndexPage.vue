@@ -37,7 +37,10 @@
       </div>
     </section>
 
-    <section class="section_simulator row container" id="simulador">
+    <section
+      class="section_simulator row container"
+      :id="$q.screen.gt.sm ? 'simulador' : ''"
+    >
       <div class="col-xs-12 col-sm-12 col-md-6 q-px-md">
         <h3 class="text-h6" v-if="$q.screen.gt.xs">
           Tenemos la mejor herramienta perfecta para planificar tu futuro
@@ -65,8 +68,9 @@
       <div
         class="col-xs-12 col-sm-12 col-md-6 row"
         :class="
-          $q.screen.gt.xs ? 'q-px-md justify-center' : 'q-mt-xl justify-end'
+          $q.screen.lt.md ? 'q-px-md justify-center' : 'q-mt-xl justify-end'
         "
+        :id="$q.screen.lt.md ? 'simulador' : ''"
       >
         <q-card
           class="card_simulator q-pb-md"
@@ -109,16 +113,21 @@
                   <q-item-label class="text-secondary text-bold">
                     A cuantas cuotas quieres pagarlo?
                   </q-item-label>
-                  <div class="row justify-center">
-                    <div v-for="(option, index) in options" :key="index">
+                  <div class="row justify-center" v-if="$q.screen.gt.xs">
+                    <template v-for="(option, index) in options" :key="index">
                       <q-radio
                         :val="option.value"
                         v-model="request.plazo"
-                        :size="$q.screen.gt.xs ? '70px' : '50px'"
+                        size="60px"
                         :label="option.label"
                       />
-                    </div>
+                    </template>
                   </div>
+                  <q-option-group
+                    v-else
+                    v-model="request.plazo"
+                    :options="options"
+                  />
                 </q-item-section>
               </q-item>
               <q-item>
@@ -126,26 +135,36 @@
                   <q-item-label class="text-secondary text-bold">
                     Cada cuanto quieres pagarlo?
                   </q-item-label>
-                  <div class="row justify-center">
-                    <q-radio
-                      :val="15"
-                      v-model="periodo"
-                      size="40px"
-                      label="Quincenal"
-                    />
-                    <q-radio
-                      :val="30"
-                      v-model="periodo"
-                      size="40px"
-                      label="Mensual"
-                    />
+                  <div class="row justify-center" v-if="$q.screen.gt.xs">
+                    <template
+                      v-for="(option, index) in optionPeriodo"
+                      :key="index"
+                    >
+                      <q-radio
+                        :val="option.value"
+                        v-model="periodo"
+                        size="60px"
+                        :label="option.label"
+                      />
+                    </template>
                   </div>
+                  <q-option-group
+                    v-else
+                    v-model="request.plazo"
+                    :options="optionPeriodo"
+                  />
                 </q-item-section>
               </q-item>
               <q-item class="text-secondary text-bold">
                 <q-item-section> Cantidad a solicitar </q-item-section>
                 <q-item-section avatar>
                   $ {{ new Intl.NumberFormat().format(request.monto) }}
+                </q-item-section>
+              </q-item>
+              <q-item class="text-secondary text-bold">
+                <q-item-section> Costo de administración </q-item-section>
+                <q-item-section avatar>
+                  $ {{ new Intl.NumberFormat().format(cuotaAdministracion) }}
                 </q-item-section>
               </q-item>
               <q-item class="text-secondary text-bold">
@@ -191,7 +210,6 @@
               @click="dialogForm = true"
               label="Solicitar cupo de crédito"
               class="paddig_button"
-              :style="$q.screen.lt.sm ? 'padding: 10px 52px !important' : ''"
             />
           </q-card-actions>
         </q-card>
@@ -216,6 +234,7 @@
                 type="text"
                 label="Nombres"
                 outlined
+                size="35px"
                 :rules="[(val) => !!val || 'Campo requerido']"
                 hide-bottom-space
               />
@@ -226,6 +245,7 @@
                 type="text"
                 label="Apellidos"
                 outlined
+                size="35px"
                 :rules="[(val) => !!val || 'Campo requerido']"
                 hide-bottom-space
               />
@@ -236,6 +256,7 @@
                 type="email"
                 label="Email"
                 outlined
+                size="35px"
                 :rules="[(val) => !!val || 'Campo requerido']"
                 hide-bottom-space
               />
@@ -245,6 +266,7 @@
                 v-model="request.celular"
                 label="Celular"
                 outlined
+                size="35px"
                 :rules="[(val) => !!val || 'Campo requerido']"
                 mask="##########"
                 hide-bottom-space
@@ -260,6 +282,7 @@
                 option-value="idTipoDocumento"
                 option-label="nombreTipoDocumento"
                 outlined
+                size="35px"
               />
             </div>
             <div class="col-xs-12 q-pa-xs">
@@ -267,6 +290,7 @@
                 v-model="request.documentoPersona"
                 label="Número de documento"
                 outlined
+                size="35px"
                 :rules="[(val) => !!val || 'Campo requerido']"
                 hide-bottom-space
                 mask="###############"
@@ -329,12 +353,24 @@
                 class="paddig_button"
               />
             </div>
+            <div class="col-xs-12 row justify-center q-pa-xs">
+              <q-btn
+                label="Solicitar nuevo monto"
+                rounded
+                unelevated
+                color="negative"
+                flat
+                no-caps
+                @click="closeDialog"
+                class="paddig_button"
+              />
+            </div>
           </q-form>
         </q-card-section>
       </q-card>
     </q-dialog>
 
-    <!-- Pasos para obtener el creido -->
+    <!-- Pasos para obtener el credito -->
     <section class="section_steps row container" id="steps">
       <div
         class="col-xs-12 q-my-xl"
@@ -429,7 +465,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { date, LocalStorage, useQuasar, scroll } from 'quasar';
+import { date, LocalStorage, useQuasar } from 'quasar';
 import { api } from '../boot/axios';
 import {
   Cuota,
@@ -437,6 +473,7 @@ import {
   ResPerson,
   TipoDocumento,
 } from 'src/components/models';
+import { scrollTo } from '../composables/scroll';
 
 const $q = useQuasar();
 
@@ -446,6 +483,10 @@ const options = [
   { label: '2 Cuotas', value: 2 },
   { label: '3 Cuotas', value: 3 },
   { label: '4 Cuotas', value: 4 },
+];
+const optionPeriodo = [
+  { label: 'Quincenal', value: 15 },
+  { label: 'Mensual', value: 30 },
 ];
 const dialogForm = ref(false);
 const periodo = ref(15);
@@ -466,7 +507,7 @@ const amortizacion = ref<Cuota[]>([]);
 const totalPagar = ref(0);
 const errorMatchData = ref('');
 const errorNotFound = ref('');
-const { setVerticalScrollPosition } = scroll;
+const cuotaAdministracion = ref(0);
 
 const onSubmit = async () => {
   $q.loading.show({
@@ -563,8 +604,13 @@ const calculateAmortizacion = () => {
   const cuota = Math.round(calculateCuota());
 
   // Calcula la primera fecha de pago
-  amortizacion.value.push({ fechaPago: formattedString, cuota: cuota + 10000 });
-  totalPagar.value = cuota + 10000;
+  cuotaAdministracion.value = request.value.monto * 0.01;
+
+  amortizacion.value.push({
+    fechaPago: formattedString,
+    cuota: cuota + cuotaAdministracion.value,
+  });
+  totalPagar.value = cuota + cuotaAdministracion.value;
 
   // Calcula el resto de fechas de pago
   for (let index = 1; index < request.value.plazo; index++) {
@@ -599,26 +645,22 @@ const calculateCuota = () => {
   return cuota;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function scrollTo(id: any) {
-  const el = document.getElementById(id);
-
-  if (el) {
-    scrollPage(el);
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function scrollPage(el: any) {
-  const rect = el.getBoundingClientRect(),
-    scrollTop = window.pageYOffset || document.documentElement.scrollTop,
-    offset = rect.top + scrollTop - 50; // allow for toolbar height
-
-  setVerticalScrollPosition(window, offset, 500);
-}
+const closeDialog = () => {
+  dialogForm.value = false;
+  setTimeout(() => {
+    scrollTo('simulador');
+  }, 500);
+};
 
 watch(
   () => request.value.plazo,
+  () => {
+    calculateAmortizacion();
+  }
+);
+
+watch(
+  () => request.value.monto,
   () => {
     calculateAmortizacion();
   }

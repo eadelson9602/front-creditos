@@ -13,15 +13,22 @@
         <q-btn color="primary" icon="menu" flat v-if="$q.screen.lt.md">
           <q-menu>
             <q-list style="min-width: 170px">
-              <q-item clickable v-close-popup to="/">
+              <q-item clickable v-close-popup @click="scrollTo('home')">
                 <q-item-section>Inicio</q-item-section>
               </q-item>
               <q-separator />
-              <q-item clickable v-close-popup>
+              <q-item clickable v-close-popup @click="scrollTo('simulador')">
+                <q-item-section>Solicitar crédito</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="scrollTo('steps')">
                 <q-item-section>Pasos para tu credito</q-item-section>
               </q-item>
               <q-separator />
-              <q-item clickable v-close-popup>
+              <q-item
+                clickable
+                v-close-popup
+                @click="openURL('http://54.175.162.92/#/login')"
+              >
                 <q-item-section> Ingreso </q-item-section>
               </q-item>
               <q-separator />
@@ -43,6 +50,14 @@
             rounded
             label="Inicio"
             @click="scrollTo('home')"
+          />
+          <q-btn
+            flat
+            no-caps
+            color="black"
+            rounded
+            label="Solicitar crédito"
+            @click="scrollTo('simulador')"
           />
           <q-btn
             flat
@@ -75,27 +90,8 @@
 </template>
 
 <script setup lang="ts">
-import { scroll, openURL } from 'quasar';
-
-const { setVerticalScrollPosition } = scroll;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const scrollTo = (id: any) => {
-  const el = document.getElementById(id);
-
-  if (el) {
-    scrollPage(el);
-  }
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const scrollPage = (el: any) => {
-  const rect = el.getBoundingClientRect(),
-    scrollTop = window.pageYOffset || document.documentElement.scrollTop,
-    offset = rect.top + scrollTop - 50; // allow for toolbar height
-
-  setVerticalScrollPosition(window, offset, 500);
-};
+import { openURL } from 'quasar';
+import { scrollTo } from '../composables/scroll';
 </script>
 <style lang="sass" scoped>
 .logo
