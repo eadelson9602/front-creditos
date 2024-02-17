@@ -75,10 +75,10 @@
             label="Ingreso"
             @click="openURL('http://54.175.162.92/#/login')"
           />
-          <q-btn flat no-caps color="black" rounded>
+          <!-- <q-btn flat no-caps color="black" rounded>
             <q-icon name="phone" class="phone" />
             601125438
-          </q-btn>
+          </q-btn> -->
         </div>
       </q-toolbar>
     </q-header>

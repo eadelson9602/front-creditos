@@ -95,7 +95,7 @@
                       v-model="request.monto"
                       :min="min"
                       :max="max"
-                      :step="100000"
+                      :step="50000"
                       color="primary"
                       track-size="10px"
                       thumb-size="35px"
@@ -150,7 +150,7 @@
                   </div>
                   <q-option-group
                     v-else
-                    v-model="request.plazo"
+                    v-model="periodo"
                     :options="optionPeriodo"
                   />
                 </q-item-section>
@@ -162,7 +162,7 @@
                 </q-item-section>
               </q-item>
               <q-item class="text-secondary text-bold">
-                <q-item-section> Costo de administración </q-item-section>
+                <q-item-section> Administración </q-item-section>
                 <q-item-section avatar>
                   $ {{ new Intl.NumberFormat().format(cuotaAdministracion) }}
                 </q-item-section>
@@ -477,7 +477,7 @@ import { scrollTo } from '../composables/scroll';
 
 const $q = useQuasar();
 
-const min = ref(100000);
+const min = ref(50000);
 const max = ref(10000000);
 const options = [
   { label: '2 Cuotas', value: 2 },
@@ -491,7 +491,7 @@ const optionPeriodo = [
 const dialogForm = ref(false);
 const periodo = ref(15);
 const request = ref({
-  monto: 100000,
+  monto: 50000,
   plazo: 4,
   idProducto: 1,
   documentoPersona: '',
@@ -556,11 +556,8 @@ const onSubmit = async () => {
         'Lo sentimos, no hemos encontrado datos asociados a los ingresados';
       return;
     }
-    $q.notify({
-      type: 'negative',
-      message: error.message,
-      position: 'bottom-right',
-    });
+
+    errorNotFound.value = error.message;
   } finally {
     $q.loading.hide();
   }
